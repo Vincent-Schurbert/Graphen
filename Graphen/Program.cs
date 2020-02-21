@@ -40,33 +40,24 @@ namespace Graphen
 
             Console.WriteLine("------------------------");
 
-            //KompletterGraph.DeleteKnoten("Südende", RemoveEdges: true);
+            KompletterGraph.DeleteKnoten("Südende", RemoveEdges: true);
 
             Console.WriteLine("------------------------");
 
             KompletterGraph.DisplayKnoten();
 
+            KompletterGraph.DeleteEdge("Lichtenrade", "Schichauweg");
 
-           // KompletterGraph.DisplayKante();
+            Console.WriteLine("------------------------");
 
-            //KompletterGraph.DeleteEdge("Lichtenrade", "Schichauweg");
+            KompletterGraph.DeleteKnoten("Südende");
 
-            //Console.WriteLine("------------------------");
+            Console.WriteLine("------------------------");
+            KompletterGraph.DisplayKnoten();
 
-            //KompletterGraph.DeleteKnoten("Südende");
-
-            //Console.WriteLine("------------------------");
-            //KompletterGraph.DisplayKnoten();
-
-            //Console.WriteLine("------------------------");
-
+            Console.WriteLine("------------------------");
 
             //KompletterGraph.DeleteEdge("Lichtenrade", "Schichauweg");
-
-
-            //Console.WriteLine("------------------------");
-
-            //KompletterGraph.DisplayKante();
 
         }
     }

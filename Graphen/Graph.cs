@@ -20,12 +20,16 @@ namespace Graphen
 
         public Node Pointer;
 
+        //------------------------------------------------------------------------------------------------------------
+
         public void AddKnoten(string Item)
         {
             Nodes.Add(new Node(Item));
             NodeCounter++;
         }
 
+        //------------------------------------------------------------------------------------------------------------
+        
         public void AddKante(string Stadtname1, string Stadtname2, int kosten)
         {
             var k1 = Nodes.Find(t => t.Name == Stadtname1);
@@ -49,6 +53,8 @@ namespace Graphen
             }
         }
 
+        //------------------------------------------------------------------------------------------------------------
+
         //public Node<T> Finder(T Item)
         //{
         //    foreach (var node in Nodes)
@@ -56,6 +62,8 @@ namespace Graphen
 
         //    }
         //}
+
+        //------------------------------------------------------------------------------------------------------------
 
         public bool Exists(string name)
         {
@@ -68,6 +76,8 @@ namespace Graphen
             }
             return false;
         }
+
+        //------------------------------------------------------------------------------------------------------------
 
         public void DeleteEdge(string name1, string name2)
         {
@@ -89,26 +99,59 @@ namespace Graphen
             }
         }
 
-        //public (List<Knoten<T>>, int) SearchWay(T StartPoint, T EndPoint)
-        //{
-        //    var Dauer = 0;
-        //    List<Knoten<T>> UsedNodes = new List<Knoten<T>>();
-        //    List<Knoten<T>> FastestPoints = new List<Knoten<T>>();
+        //------------------------------------------------------------------------------------------------------------
 
-        //    while (StartPoint.Equals(Nodes))
-
-
-        //    return (UsedNodes, Dauer);
-        //}
-
-        public List<Node> FindNeighbour(string StartNode)
+        public (List<Node>, int) SearchWay(string startpoint, string endpoint)
         {
-            List<Node> NeighbourList = new List<Node>();
+            var dauer = 0; //darf vermutlich nicht null sein bei rekursiver funktion wird es sonst immer wieder auf 0 gesetzt
+            List<Node> usednodes = new List<Node>();
+            List<Node> fastestpoints = new List<Node>();
+
+            Node aktuellerknoten = null;
+            Node zielknoten = null;
+            foreach (var node in Nodes)
+            {
+                if (node.Name == startpoint)
+                {
+                    aktuellerknoten = node;
+                }
+                if (node.Name == endpoint)
+                {
+                    zielknoten = node;
+                }
+            }
+
+            while (aktuellerknoten != zielknoten)
+            {
+                var tempnachbar = FindNeighbour(aktuellerknoten.Name);
+                if (aktuellerknoten == zielknoten)
+                {
+                    Console.WriteLine("Jawoll Ziel erreicht!!! Die Fahrtdauer beträgt " + dauer);
+                }
+                else
+                {
+                    foreach (var nachbar in tempnachbar)
+                    {
+                         
+                        SearchWay(nachbar.Name, endpoint);
+                    }
+                }
+
+            }
+
+
+                return (usednodes, dauer);
+        }
+
+        //------------------------------------------------------------------------------------------------------------
+        public List<Node> FindNeighbour(string startnode)
+        {
+            List<Node> neighbourlist = new List<Node>();
 
             Node startknoten = null;
             foreach (var node in Nodes)
             {
-                if (node.Name == StartNode)
+                if (node.Name == startnode)
                 {
                     startknoten = node;
                 }
@@ -119,18 +162,18 @@ namespace Graphen
                 foreach (var kante in startknoten.Kanten)
                 {
                     if (kante.A == startknoten)
-                        NeighbourList.Add(kante.B);
-                    else
-                        NeighbourList.Add(kante.A);
+                        neighbourlist.Add(kante.B);
+                    else 
+                        neighbourlist.Add(kante.A);
                 }                
             }
             else
             {
                 Console.WriteLine("Der Knoten existiert nicht");
             }
-            return NeighbourList;
+            return neighbourlist;
         }
-
+        //-------------------------------------------------------------------------------------------------------
         public void DeleteKnoten(string DeleteNode, bool RemoveEdges = false)
         {
             if (Exists(DeleteNode))
@@ -164,6 +207,8 @@ namespace Graphen
             }
         }
 
+        //------------------------------------------------------------------------------------------------------------
+
         private void RemoveEdge(Edge edge)
         {
             edge.A.Kanten.Remove(edge);
@@ -184,12 +229,5 @@ namespace Graphen
             }
         }
 
-        public void DisplayKante()
-        {
-            foreach (var edge in Edges)
-            {
-                Console.WriteLine($"Kante zwischen " + edge.A.Kanten + edge.B.Kanten + edge.Value);
-            }
-        }
     }
 }
