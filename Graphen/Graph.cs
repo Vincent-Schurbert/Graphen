@@ -31,7 +31,7 @@ namespace Graphen
             var k1 = Nodes.Find(t => t.Name == Stadtname1);
             var k2 = Nodes.Find(t => t.Name == Stadtname2);
 
-            if (k1 != null && k2 != null)
+            if (k1 != null && k2 != null && k1 != k2)
             {
                 var kante = new Edge { A = k1, Value = kosten, B = k2 };
                 k1.Kanten.Add(kante);
@@ -39,8 +39,14 @@ namespace Graphen
                 Edges.Add(kante);
                 return;
             }
-
+            else if (k1 != null || k2 != null)
+            {
             throw new Exception("Mindestens einer der Knoten existiert nicht");
+            }
+            else
+            {
+                throw new Exception("Es darf nicht zweimal der slebe Knoten angegeben werden");
+            }
         }
 
         //public Node<T> Finder(T Item)
@@ -94,6 +100,36 @@ namespace Graphen
 
         //    return (UsedNodes, Dauer);
         //}
+
+        public List<Node> FindNeighbour(string StartNode)
+        {
+            List<Node> NeighbourList = new List<Node>();
+
+            Node startknoten = null;
+            foreach (var node in Nodes)
+            {
+                if (node.Name == StartNode)
+                {
+                    startknoten = node;
+                }
+            }
+
+            if (startknoten != null)
+            {
+                foreach (var kante in startknoten.Kanten)
+                {
+                    if (kante.A == startknoten)
+                        NeighbourList.Add(kante.B);
+                    else
+                        NeighbourList.Add(kante.A);
+                }                
+            }
+            else
+            {
+                Console.WriteLine("Der Knoten existiert nicht");
+            }
+            return NeighbourList;
+        }
 
         public void DeleteKnoten(string DeleteNode, bool RemoveEdges = false)
         {

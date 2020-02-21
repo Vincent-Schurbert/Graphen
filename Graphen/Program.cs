@@ -36,11 +36,16 @@ namespace Graphen
 
             Console.WriteLine("------------------------");
 
-            KompletterGraph.DeleteKnoten("Südende", RemoveEdges: true);
+            var test = KompletterGraph.FindNeighbour("Priesterweg");
+
+            Console.WriteLine("------------------------");
+
+            //KompletterGraph.DeleteKnoten("Südende", RemoveEdges: true);
 
             Console.WriteLine("------------------------");
 
             KompletterGraph.DisplayKnoten();
+
 
            // KompletterGraph.DisplayKante();
 
