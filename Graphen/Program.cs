@@ -8,56 +8,94 @@ namespace Graphen
         {
             var KompletterGraph = new Graph();
 
-            KompletterGraph.AddKnoten("Lichtenrade");
-            KompletterGraph.AddKnoten("Schichauweg");
-            KompletterGraph.AddKnoten("Buckower Chaussee");
-            KompletterGraph.AddKnoten("Marienfelde");
-            KompletterGraph.AddKnoten("Attilastraße");
-            KompletterGraph.AddKnoten("Priesterweg");
-            KompletterGraph.AddKnoten("Südkreuz");
-            KompletterGraph.AddKnoten("Südende");
-            KompletterGraph.AddKnoten("Lankwitz");
-            KompletterGraph.AddKnoten("Schöneberg");
-            KompletterGraph.AddKnoten("Blankenfelde");
+            //KompletterGraph.AddKnoten("Friedrichstraße");
+            //KompletterGraph.AddKnoten("Hackescher Markt");
+            //KompletterGraph.AddKnoten("Alexanderplatz");
+            //KompletterGraph.AddKnoten("Brandenburger Tor");
+            //KompletterGraph.AddKnoten("Potsdamer Platz");
+            //KompletterGraph.AddKnoten("Bundestag");
+            //KompletterGraph.AddKnoten("Hauptbahnhof");
+            //KompletterGraph.AddKnoten("Bellevue");
+            //KompletterGraph.AddKnoten("Oranienburger Tor");
+            //KompletterGraph.AddKnoten("Naturkundemuseum");
+            //KompletterGraph.AddKnoten("Oranienburgerstraße");
+            //KompletterGraph.AddKnoten("Nordbahnhof");
+            //KompletterGraph.AddKnoten("Französische Straße");
 
-            KompletterGraph.AddKante("Lichtenrade", "Schichauweg", 2);
-            KompletterGraph.AddKante("Schichauweg", "Buckower Chaussee", 1);
-            KompletterGraph.AddKante("Buckower Chaussee", "Marienfelde", 3);
-            KompletterGraph.AddKante("Marienfelde", "Attilastraße", 5);
-            KompletterGraph.AddKante("Attilastraße", "Priesterweg", 4);
-            KompletterGraph.AddKante("Priesterweg", "Südkreuz", 3);
-            KompletterGraph.AddKante("Südende", "Priesterweg", 6);
-            KompletterGraph.AddKante("Südende", "Lankwitz", 2);
-            KompletterGraph.AddKante("Südkreuz", "Schöneberg", 1);
-            KompletterGraph.AddKante("Lichtenrade", "Blankenfelde", 10);
+            //KompletterGraph.AddKante("Hackescher Markt", "Friedrichstraße", 2);
+            //KompletterGraph.AddKante("Friedrichstraße", "Französische Straße", 1);
+            //KompletterGraph.AddKante("Brandenburger Tor", "Friedrichstraße", 3);
+            //KompletterGraph.AddKante("Friedrichstraße", "Hauptbahnhof", 5);
+            //KompletterGraph.AddKante("Oranienburger Tor", "Friedrichstraße", 4);
+            //KompletterGraph.AddKante("Friedrichstraße", "Oranienburgerstraße", 3);
+            //KompletterGraph.AddKante("Alexanderplatz", "Hackescher Markt", 6);
+            //KompletterGraph.AddKante("Alexanderplatz", "Nordbahnhof", 2);
+            //KompletterGraph.AddKante("Französische Straße", "Alexanderplatz", 1);
+            //KompletterGraph.AddKante("Französische Straße", "Potsdamer Platz", 10);
+            //KompletterGraph.AddKante("Potsdamer Platz", "Brandenburger Tor", 10);
+            //KompletterGraph.AddKante("Brandenburger Tor", "Bundestag", 10);
+            //KompletterGraph.AddKante("Hauptbahnhof", "Bundestag", 10);
+            //KompletterGraph.AddKante("Hauptbahnhof", "Bellevue", 10);
+            //KompletterGraph.AddKante("Oranienburger Tor", "Nordbahnhof", 10);
+            //KompletterGraph.AddKante("Nordbahnhof", "Oranienburgerstraße", 10);
+            //KompletterGraph.AddKante("Naturkundemuseum", "Oranienburger Tor", 10);
+
+            KompletterGraph.AddKnoten("E");
+            KompletterGraph.AddKnoten("B");
+            KompletterGraph.AddKnoten("D");
+            KompletterGraph.AddKnoten("F");
+            KompletterGraph.AddKnoten("H");
+            KompletterGraph.AddKnoten("C");
+            KompletterGraph.AddKnoten("G");
+            KompletterGraph.AddKnoten("A");
+            KompletterGraph.AddKnoten("L");
+            KompletterGraph.AddKnoten("Z");
+            KompletterGraph.AddKnoten("K");
+            KompletterGraph.AddKnoten("Q");
+
+            KompletterGraph.AddKante("B", "E", 3);
+            KompletterGraph.AddKante("E", "F", 1);
+            KompletterGraph.AddKante("D", "E", 5);
+            KompletterGraph.AddKante("D", "C", 4);
+            KompletterGraph.AddKante("C", "A", 2);
+            KompletterGraph.AddKante("D", "G", 1);
+            KompletterGraph.AddKante("E", "H", 7);
+            KompletterGraph.AddKante("H", "G", 5);
+            KompletterGraph.AddKante("H", "K", 4);
+            KompletterGraph.AddKante("Q", "K", 2);
+            KompletterGraph.AddKante("K", "Z", 1);
+            KompletterGraph.AddKante("Z", "G", 3);
 
 
-            KompletterGraph.DisplayKnoten();
 
-            Console.WriteLine("------------------------");
+            //KompletterGraph.DisplayKnoten();
 
-            var test = KompletterGraph.FindNeighbour("Priesterweg");
+            //Console.WriteLine("------------------------");
 
-            Console.WriteLine("------------------------");
+            //var test = KompletterGraph.FindNeighbour("Priesterweg");
 
-            KompletterGraph.DeleteKnoten("Südende", RemoveEdges: true);
+            //Console.WriteLine("------------------------");
 
-            Console.WriteLine("------------------------");
+            //KompletterGraph.DeleteKnoten("Südende", RemoveEdges: true);
 
-            KompletterGraph.DisplayKnoten();
+            //Console.WriteLine("------------------------");
 
-            KompletterGraph.DeleteEdge("Lichtenrade", "Schichauweg");
-
-            Console.WriteLine("------------------------");
-
-            KompletterGraph.DeleteKnoten("Südende");
-
-            Console.WriteLine("------------------------");
-            KompletterGraph.DisplayKnoten();
-
-            Console.WriteLine("------------------------");
+            //KompletterGraph.DisplayKnoten();
 
             //KompletterGraph.DeleteEdge("Lichtenrade", "Schichauweg");
+
+            //Console.WriteLine("------------------------");
+
+            //KompletterGraph.DeleteKnoten("Südende");
+
+            //Console.WriteLine("------------------------");
+            //KompletterGraph.DisplayKnoten();
+
+            //Console.WriteLine("------------------------");
+
+            //KompletterGraph.DeleteEdge("Lichtenrade", "Schichauweg");
+
+            KompletterGraph.SearchWay("E", "Z");
 
         }
     }

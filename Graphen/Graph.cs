@@ -29,7 +29,7 @@ namespace Graphen
         }
 
         //------------------------------------------------------------------------------------------------------------
-        
+
         public void AddKante(string Stadtname1, string Stadtname2, int kosten)
         {
             var k1 = Nodes.Find(t => t.Name == Stadtname1);
@@ -45,7 +45,7 @@ namespace Graphen
             }
             else if (k1 != null || k2 != null)
             {
-            throw new Exception("Mindestens einer der Knoten existiert nicht");
+                throw new Exception("Mindestens einer der Knoten existiert nicht");
             }
             else
             {
@@ -101,11 +101,13 @@ namespace Graphen
 
         //------------------------------------------------------------------------------------------------------------
 
-        public (List<Node>, int) SearchWay(string startpoint, string endpoint)
+        public (List<List<Node>>, int) SearchWay(string startpoint, string endpoint)
         {
-            var dauer = 0; //darf vermutlich nicht null sein bei rekursiver funktion wird es sonst immer wieder auf 0 gesetzt
-            List<Node> usednodes = new List<Node>();
-            List<Node> fastestpoints = new List<Node>();
+            Stack<Node> stack = new Stack<Node>();
+            HashSet<Node>  seen = new HashSet<Node>();
+            List<List<Node>> Ergebnis = new List<List<Node>>();
+
+            var dauer = 0; 
 
             Node aktuellerknoten = null;
             Node zielknoten = null;
@@ -121,26 +123,98 @@ namespace Graphen
                 }
             }
 
-            while (aktuellerknoten != zielknoten)
+            stack.Push(aktuellerknoten);
+
+            while (stack.Count != 0)
             {
-                var tempnachbar = FindNeighbour(aktuellerknoten.Name);
+                var tempnachbarn = FindNeighbour(aktuellerknoten.Name);
+
+                if (tempnachbarn.Count > 0)
+                {
+                    stack.Push(tempnachbarn.ToArray()[0]);
+                    aktuellerknoten = stack.Peek();
+                    tempnachbarn.RemoveAt(0);
+                }
+                if (tempnachbarn.Count == 0)
+                {
+                    stack.Pop();
+                }
+
                 if (aktuellerknoten == zielknoten)
                 {
-                    Console.WriteLine("Jawoll Ziel erreicht!!! Die Fahrtdauer beträgt " + dauer);
-                }
-                else
-                {
-                    foreach (var nachbar in tempnachbar)
+                    var erg = stack.ToList();               
+                        Ergebnis.Add(erg);
+
+                    while (stack.Count > 0)
                     {
-                         
-                        SearchWay(nachbar.Name, endpoint);
+                        if (tempnachbarn.Count == 0)
+                        {
+                            stack.Pop();
+                        }
                     }
                 }
-
             }
 
+            //while (stack.Count != 0)
+            //{
+            //    var tempnachbar = FindNeighbour(aktuellerknoten.Name);
 
-                return (usednodes, dauer);
+            //    if (!seen.Contains(aktuellerknoten))
+            //    {
+            //        seen.Add(aktuellerknoten);
+            //        foreach (var nachbar in tempnachbar)
+            //        {
+            //            stack.Push(nachbar);
+            //        }
+            //        if (!seen.Contains(zielknoten))
+            //            Weg.Add(aktuellerknoten);
+            //    }
+            //    aktuellerknoten = stack.Pop();
+
+            //    var i = seen.Count();
+            //    while (seen.Contains(zielknoten) && Weg.Contains(aktuellerknoten))
+            //    {
+            //    }
+
+            //}
+            return (Ergebnis, dauer);
+            //var dauer = 0; //darf vermutlich nicht null sein bei rekursiver funktion wird es sonst immer wieder auf 0 gesetzt
+            //List<Node> offen = new List<Node>();
+            //List<Node> besucht = new List<Node>();
+
+            //Node aktuellerknoten = null;
+            //Node zielknoten = null;
+            //foreach (var node in Nodes)
+            //{
+            //    if (node.Name == startpoint)
+            //    {
+            //        aktuellerknoten = node;
+            //    }
+            //    if (node.Name == endpoint)
+            //    {
+            //        zielknoten = node;
+            //    }
+            //}
+            //offen.Add(aktuellerknoten);
+            //while (offen.Count() != 0)
+            //{
+            //    var tempnachbar = FindNeighbour(aktuellerknoten.Name);
+            //    foreach (var nachbar in tempnachbar)
+            //    {
+            //        if (!offen.Contains(nachbar))
+            //        {
+            //            offen.Add(nachbar);
+            //        }
+            //    }
+
+            //    besucht.Add(aktuellerknoten);
+            //    aktuellerknoten = offen.ToArray()[0];
+            //    offen.RemoveAt(0);
+            //}
+
+            //Console.WriteLine("Jawoll Ziel erreicht!!! Die Fahrtdauer beträgt " + dauer);
+
+            //return (besucht, dauer);
         }
 
         //------------------------------------------------------------------------------------------------------------
@@ -163,9 +237,9 @@ namespace Graphen
                 {
                     if (kante.A == startknoten)
                         neighbourlist.Add(kante.B);
-                    else 
+                    else
                         neighbourlist.Add(kante.A);
-                }                
+                }
             }
             else
             {
