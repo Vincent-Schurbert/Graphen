@@ -100,15 +100,53 @@ namespace Graphen
         }
 
         //------------------------------------------------------------------------------------------------------------
+        public void SearchWay2(string startpoint, string endpoint)
+        {
+            var startNode = Nodes.First(node => node.Name == startpoint);
+            var ways = new List<List<Node>> { new List<Node>{ startNode } };
+            var newWays = ways;
+
+            bool newWayFound = true;
+            while (newWayFound)
+            {                
+                newWays = newWays.SelectMany(w => GetNewWays(w)).ToList();
+                newWayFound = newWays.Any();
+                ways.AddRange(newWays);
+            }
+
+            var result = ways.Where(w => w.Last().Name == endpoint).ToArray();
+        }
+
+        public List<List<Node>> GetNewWays(List<Node> way)
+        {
+            var ways = new List<List<Node>>();
+            var startNode = way.Last();
+            var andereKnoten = startNode.Kanten
+                .Select(k => k.A)
+                .Concat(startNode.Kanten.Select(k => k.B))
+                .Distinct()
+                .Where(k => !way.Contains(k))
+                .ToArray();
+            
+            foreach (var knoten in andereKnoten)
+            {
+                var newWay = way.ToList();
+                newWay.Add(knoten);
+                ways.Add(newWay);
+            }
+
+            return ways;
+        }
 
         public (List<List<Node>>, int) SearchWay(string startpoint, string endpoint)
         {
             Stack<Node> stack = new Stack<Node>();
-            HashSet<Node>  seen = new HashSet<Node>();
+            HashSet<Node> seen = new HashSet<Node>();
             List<List<Node>> Ergebnis = new List<List<Node>>();
 
-            var dauer = 0; 
+            var dauer = 0;
 
+            Node anfangsknoten = null;
             Node aktuellerknoten = null;
             Node zielknoten = null;
             foreach (var node in Nodes)
@@ -116,6 +154,7 @@ namespace Graphen
                 if (node.Name == startpoint)
                 {
                     aktuellerknoten = node;
+                    anfangsknoten = node;
                 }
                 if (node.Name == endpoint)
                 {
@@ -124,99 +163,88 @@ namespace Graphen
             }
 
             stack.Push(aktuellerknoten);
+            seen.Add(aktuellerknoten);
 
             while (stack.Count != 0)
             {
-                var tempnachbarn = FindNeighbour(aktuellerknoten.Name);
+                var tempnachbarn = FindNeighbour(aktuellerknoten.Name)
+                    .Where(e => !stack.Contains(e))
+                    .Where(e => !seen.Contains(e))
+                    .ToList();
 
-                if (tempnachbarn.Count > 0)
+                while (tempnachbarn.Count > 0)
                 {
-                    stack.Push(tempnachbarn.ToArray()[0]);
-                    aktuellerknoten = stack.Peek();
-                    tempnachbarn.RemoveAt(0);
-                }
-                if (tempnachbarn.Count == 0)
-                {
-                    stack.Pop();
-                }
 
-                if (aktuellerknoten == zielknoten)
-                {
-                    var erg = stack.ToList();               
-                        Ergebnis.Add(erg);
-
-                    while (stack.Count > 0)
+                    for (int i = 0; i < tempnachbarn.Count(); i++)
                     {
-                        if (tempnachbarn.Count == 0)
+                        if (!seen.Contains(tempnachbarn.ToArray()[0]))
                         {
-                            stack.Pop();
+                            stack.Push(tempnachbarn.ToArray()[0]);
+                            aktuellerknoten = stack.Peek();
+                            tempnachbarn = FindNeighbour(aktuellerknoten.Name)
+                                .Where(e => !stack.Contains(e))
+                                .Where(e => !seen.Contains(e))
+                                .ToList();
+                            break;
+                        }
+                        else if (seen.Contains(tempnachbarn.ToArray()[0]))
+                        {
+                            tempnachbarn.RemoveAt(0);
                         }
                     }
+
+                    //if (aktuellerknoten == zielknoten)
+                    //{
+                    //    var erg = stack.ToList();
+                    //    Ergebnis.Add(erg);
+                    //    seen.Add(aktuellerknoten);
+                    //    stack.Pop();
+                    //    stack.Push(anfangsknoten);
+                    //    aktuellerknoten = stack.Peek();
+                    //    tempnachbarn = FindNeighbour(aktuellerknoten.Name)
+                    //        .Where(e => !stack.Contains(e))
+                    //        .Where(e => !seen.Contains(e))
+                    //        .ToList();
+
+                        //while (stack.Count > 0)
+                        //{
+                        //    if (tempnachbarn.Count == 0)
+                        //    {
+                        //        stack.Pop();
+                        //        aktuellerknoten = stack.Peek();
+                        //        tempnachbarn = FindNeighbour(aktuellerknoten.Name)
+                        //            .Where(e => !stack.Contains(e))
+                        //            .Where(e => !seen.Contains(e))
+                        //            .ToList();
+                        //    }
+                        //    else
+                        //    {
+                        //        break;
+                        //    }
+                        //}
+                    //}
+                }
+
+                if (tempnachbarn.Count == 0)
+                {
+                    var erg = stack.ToList();
+                    Ergebnis.Add(erg);
+                    stack.Pop();
+                    seen.Add(aktuellerknoten);
+                    if (stack.Count == 0)
+                        break;
+                    aktuellerknoten = stack.Peek();
+                    tempnachbarn = FindNeighbour(aktuellerknoten.Name)
+                        .Where(e => !stack.Contains(e))
+                        .Where(e => !seen.Contains(e))
+                        .ToList();
                 }
             }
 
-            //while (stack.Count != 0)
-            //{
-            //    var tempnachbar = FindNeighbour(aktuellerknoten.Name);
+            var result = Ergebnis.Where(w => w.First().Name == endpoint).ToArray();
 
-            //    if (!seen.Contains(aktuellerknoten))
-            //    {
-            //        seen.Add(aktuellerknoten);
-            //        foreach (var nachbar in tempnachbar)
-            //        {
-            //            stack.Push(nachbar);
-            //        }
-            //        if (!seen.Contains(zielknoten))
-            //            Weg.Add(aktuellerknoten);
-            //    }
-            //    aktuellerknoten = stack.Pop();
-
-            //    var i = seen.Count();
-            //    while (seen.Contains(zielknoten) && Weg.Contains(aktuellerknoten))
-            //    {
-            //    }
-
-            //}
             return (Ergebnis, dauer);
-            //var dauer = 0; //darf vermutlich nicht null sein bei rekursiver funktion wird es sonst immer wieder auf 0 gesetzt
-            //List<Node> offen = new List<Node>();
-            //List<Node> besucht = new List<Node>();
-
-            //Node aktuellerknoten = null;
-            //Node zielknoten = null;
-            //foreach (var node in Nodes)
-            //{
-            //    if (node.Name == startpoint)
-            //    {
-            //        aktuellerknoten = node;
-            //    }
-            //    if (node.Name == endpoint)
-            //    {
-            //        zielknoten = node;
-            //    }
-            //}
-            //offen.Add(aktuellerknoten);
-            //while (offen.Count() != 0)
-            //{
-            //    var tempnachbar = FindNeighbour(aktuellerknoten.Name);
-            //    foreach (var nachbar in tempnachbar)
-            //    {
-            //        if (!offen.Contains(nachbar))
-            //        {
-            //            offen.Add(nachbar);
-            //        }
-            //    }
-
-            //    besucht.Add(aktuellerknoten);
-            //    aktuellerknoten = offen.ToArray()[0];
-            //    offen.RemoveAt(0);
-            //}
-
-            //Console.WriteLine("Jawoll Ziel erreicht!!! Die Fahrtdauer beträgt " + dauer);
-
-            //return (besucht, dauer);
         }
-
         //------------------------------------------------------------------------------------------------------------
         public List<Node> FindNeighbour(string startnode)
         {
