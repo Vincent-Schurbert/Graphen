@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Graphen
 {
@@ -94,8 +95,11 @@ namespace Graphen
             //Console.WriteLine("------------------------");
 
             //KompletterGraph.DeleteEdge("Lichtenrade", "Schichauweg");
+            
+            var start = KompletterGraph.Nodes.First(n => n.Name == "E");
+            var ziel = KompletterGraph.Nodes.First(n => n.Name == "Z");
 
-            KompletterGraph.SearchWay("E", "Z");
+            KompletterGraph.GangAlgo(start, ziel);
 
         }
     }
