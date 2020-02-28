@@ -10,8 +10,6 @@ namespace Graphen
         public List<Node> Nodes { get; set; }
         public List<Edge> Edges;
 
-        public List<List<Node>> allWays = new List<List<Node>>();
-
         //List<List<Node>> Solutions = new List<List<Node>>();
         //Stack<Node> Stack = new Stack<Node>();
         //HashSet<Node> Visited = new HashSet<Node>();
@@ -21,19 +19,11 @@ namespace Graphen
             Edges = new List<Edge>();
         }
 
-        public int NodeCounter = 0;
-        public int EdgeCounter = 0;
-
-        public Node Pointer;
-
         //------------------------------------------------------------------------------------------------------------
-
         public void AddKnoten(string Item)
         {
             Nodes.Add(new Node(Item));
-            NodeCounter++;
         }
-
         //------------------------------------------------------------------------------------------------------------
 
         public void AddKante(string Stadtname1, string Stadtname2, int kosten)
@@ -61,17 +51,7 @@ namespace Graphen
 
         //------------------------------------------------------------------------------------------------------------
 
-        //public Node<T> Finder(T Item)
-        //{
-        //    foreach (var node in Nodes)
-        //    {
-
-        //    }
-        //}
-
-        //------------------------------------------------------------------------------------------------------------
-
-        public bool Exists(string name)
+        public bool Exists(string name) // Überprüft ob ein Element in der Liste existiert
         {
             foreach (var node in Nodes)
             {
@@ -82,48 +62,8 @@ namespace Graphen
             }
             return false;
         }
-
         //------------------------------------------------------------------------------------------------------------
-
-        public void DeleteEdge(string name1, string name2)
-        {
-            foreach (var edge in Edges)
-            {
-                if (edge.A.Name == name1 && edge.B.Name == name2)
-                {
-                    Edges.Remove(edge);
-
-                    foreach (var node in Nodes)
-                    {
-                        if (edge.A.Equals(node.Kanten) || edge.B.Equals(node.Kanten))
-                        {
-                            node.Kanten.Remove(edge);
-                        }
-                    }
-                    return;
-                }
-            }
-        }
-
-        //public (List<Node>, int) ShortestWay(string startpoint, string endpoint)
-        //{
-        //    var allResultWays = SearchWay2(startpoint, endpoint);
-
-        //    foreach (var item in allResultWays)
-        //    {
-        //        foreach(var data in item)
-        //        {
-        //            if (item.Contains(data.Kanten))
-        //            {
-
-        //            }
-
-        //        }
-        //    }
-        //}
-
-        //------------------------------------------------------------------------------------------------------------
-        public List<List<Node>> SearchWay2(string startpoint, string endpoint)
+        public List<List<Node>> SearchWay2(string startpoint, string endpoint) // Iterative Lösungen von Jens
         {
             var startNode = Nodes.First(node => node.Name == startpoint);
             var ways = new List<List<Node>> { new List<Node> { startNode } };
@@ -143,7 +83,7 @@ namespace Graphen
             return result;
         }
 
-        public List<List<Node>> GetNewWays(List<Node> way)
+        public List<List<Node>> GetNewWays(List<Node> way) // sucht immer die Wege von einer Liste von Knoten 
         {
             var ways = new List<List<Node>>();
             var startNode = way.Last();
@@ -164,109 +104,249 @@ namespace Graphen
             return ways;
         }
 
-        //public (List<List<Node>>, int) SearchWay(string startpoint, string endpoint)
-        //{
-        //    Stack<Node> stack = new Stack<Node>();
-        //    HashSet<Node> seen = new HashSet<Node>();
-        //    List<List<Node>> Ergebnis = new List<List<Node>>();
+        //------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Um Rekursion zu verstehen, muss man Rekursion verstehen ;        /// </summary>
+        /// <param name="start">Der Startknoten</param>
+        /// <param name="ziel">Der Zielknoten</param>
+        /// <param name="history">Der bisher gegangene Weg</param>
+        /// <returns>Lösungswege</returns>
+        public List<List<Node>> SearchWaysRecursive(Node start, Node ziel, List<Node> history)
+        {
+            Console.WriteLine(new string('-', history.Count) + "Starte " + start.Name);
+            var solutions = new List<List<Node>>();
+            //Alle Nachbarn holen, die noch nicht in der History sind
+            var neighborNodes =
+                start.Kanten.Select(e => e.A)
+                .Union(start.Kanten.Select(e => e.B))
+                .Where(e => !history.Contains(e))
+                .ToArray();
+            foreach (var neighbor in neighborNodes)
+            {
+                if (neighbor == ziel)
+                {
+                    //ist der Nachbar das Ziel, speichern wir das
+                    var solution = new List<Node>(history) { neighbor };
+                    solutions.Add(solution);
+                }
+                else
+                {
+                    //ist es nicht das Ziel, dann erweitern wir die History und gehen ein Level tiefer
+                    //die Lösungen aus dieser Ebene adden wir zu den solutions
+                    var nextHistory = new List<Node>(history) { neighbor };
+                    solutions.AddRange(SearchWaysRecursive(neighbor, ziel, nextHistory));
+                }
+            }
+            Console.WriteLine(new string('-', history.Count) + "Beende " + start.Name);
+            return solutions; // gibt nicht nur die Lösungen für Start bis Ziel aus sondern auch Lösungen die über den Start punkt führen 
+        }
 
-        //    var dauer = 0;
+        //------------------------------------------------------------------------------------------------------------
+        public (List<List<Node>>, List<Node>, List<int>) FastestWay(Node start, Node ziel)
+        {
+            var history = new List<Node>();
+            var gefilterteSolutions = new List<List<Node>>();
 
-        //    Node anfangsknoten = null;
-        //    Node aktuellerknoten = null;
-        //    Node zielknoten = null;
-        //    foreach (var node in Nodes)
-        //    {
-        //        if (node.Name == startpoint)
-        //        {
-        //            aktuellerknoten = node;
-        //            anfangsknoten = node;
-        //        }
-        //        if (node.Name == endpoint)
-        //        {
-        //            zielknoten = node;
-        //        }
-        //    }
+            var ungefilterteSolutions = SearchWaysRecursive(start, ziel, history);
 
-        //    stack.Push(aktuellerknoten);
-        //    seen.Add(aktuellerknoten);
+            foreach (var item in ungefilterteSolutions)  
+            {
+                //Überprüfen ob das erste Element der Liste mit dem Startpunkt übereinstimmt
+                if (item.ToArray()[0] == start)
+                    gefilterteSolutions.Add(item);
+            }
 
-        //    while (stack.Count != 0)
-        //    {
-        //        var tempnachbarn = FindNeighbour(aktuellerknoten.Name)
-        //            .Where(e => !stack.Contains(e))
-        //            .Where(e => !seen.Contains(e))
-        //            .ToList();
+            var shortestWay = new List<Node>();
+            var valueWays = new List<int>();
+            var Zähler = 0;
+            int sum = 0;
 
-        //        while (tempnachbarn.Count > 0)
-        //        {
+            foreach (var item in gefilterteSolutions)
+            {
+                foreach (var node in item)
+                {
+                    var listOfEdges = node.Kanten;
 
-        //            for (int i = 0; i < tempnachbarn.Count(); i++)
-        //            {
-        //                if (!seen.Contains(tempnachbarn.ToArray()[0]))
-        //                {
-        //                    stack.Push(tempnachbarn.ToArray()[0]);
-        //                    aktuellerknoten = stack.Peek();
-        //                    tempnachbarn = FindNeighbour(aktuellerknoten.Name)
-        //                        .Where(e => !stack.Contains(e))
-        //                        .Where(e => !seen.Contains(e))
-        //                        .ToList();
-        //                    break;
-        //                }
-        //                else if (seen.Contains(tempnachbarn.ToArray()[0]))
-        //                {
-        //                    tempnachbarn.RemoveAt(0);
-        //                }
-        //            }
+                    for (int i = Zähler; i < item.Count() - 1;)
+                    {
+                        for (int h = 0; h < listOfEdges.Count(); h++)
+                        {
+                            var knot = listOfEdges.ToArray()[h];
+                            if (knot.A == item.ToArray()[i + 1] || knot.B == item.ToArray()[i + 1])
+                            {
+                                Zähler++;
+                                sum = sum + knot.Value;
+                                break;
+                            }
+                        }
+                        break;
 
-        //            if (aktuellerknoten == zielknoten)
-        //            {
-        //                var erg = stack.ToList();
-        //                Ergebnis.Add(erg);
-        //                seen.Add(aktuellerknoten);
-        //                stack.Clear();
-        //                stack.Push(anfangsknoten);
-        //                aktuellerknoten = stack.Peek();
-        //                tempnachbarn = FindNeighbour(aktuellerknoten.Name)
-        //                    .Where(e => !stack.Contains(e))
-        //                    .Where(e => !seen.Contains(e))
-        //                    .ToList();
+                    }
+                }
 
-        //                while (stack.Count > 0)
-        //                {
-        //                    if (tempnachbarn.Count == 0)
-        //                    {
-        //                        stack.Pop();
-        //                        aktuellerknoten = stack.Peek();
-        //                        tempnachbarn = FindNeighbour(aktuellerknoten.Name)
-        //                            .Where(e => !stack.Contains(e))
-        //                            .Where(e => !seen.Contains(e))
-        //                            .ToList();
-        //                    }
-        //                    else
-        //                    {
-        //                        break;
-        //                    }
-        //                }
-        //            }
-        //        }
+                for (int i = 0; i < valueWays.Count(); i++)
+                {
+                    if (sum < valueWays.ToArray()[i])
+                    {
+                        if (i == valueWays.Count() - 1) 
+                        {
+                            //immer den billigsten Weg in die Liste schreiben und davor die Liste leeren 
+                            shortestWay.Clear();
+                            foreach (var dings in item)
+                            {
+                                shortestWay.Add(dings);
+                            }
+                        }
+                    }
+                    else
+                        break;
+                }
+                valueWays.Add(sum);
+                sum = 0;
+                Zähler = 0;
+            }
 
-        //        if (tempnachbarn.Count == 0 && aktuellerknoten != zielknoten)
-        //        {
-        //            stack.Pop();
-        //            seen.Add(aktuellerknoten);
-        //            if (stack.Count == 0)
-        //                break;
-        //            aktuellerknoten = stack.Peek();
-        //            tempnachbarn = FindNeighbour(aktuellerknoten.Name)
-        //                .Where(e => !stack.Contains(e))
-        //                .Where(e => !seen.Contains(e))
-        //                .ToList();
-        //        }
-        //    }
+            return (gefilterteSolutions, shortestWay, valueWays);
+        }
+        //------------------------------------------------------------------------------------------------------------
+        public List<Node> FindNeighbour(string startnode)
+        {
+            List<Node> neighbourlist = new List<Node>();
 
-        //    return (Ergebnis, dauer);
-        //}
+            Node startknoten = null;
+            foreach (var node in Nodes)
+            {
+                if (node.Name == startnode)
+                {
+                    startknoten = node;
+                }
+            }
+
+            if (startknoten != null)
+            {
+                foreach (var kante in startknoten.Kanten)
+                {
+                    if (kante.A == startknoten)
+                        neighbourlist.Add(kante.B);
+                    else
+                        neighbourlist.Add(kante.A);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Der Knoten existiert nicht");
+            }
+            return neighbourlist;
+        }
+        //-------------------------------------------------------------------------------------------------------
+        public void DeleteKnoten(string DeleteNode, bool RemoveEdges = false)
+        {
+            if (Exists(DeleteNode))
+            {
+                foreach (var node in Nodes.ToArray())
+                {
+                    if (node.Kanten.Count != 0 && node.Name == DeleteNode)
+                    {
+                        if (RemoveEdges == true)
+                        {
+                            foreach (var edge in node.Kanten.ToArray())
+                            {
+                                RemoveEdge(edge);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Der Knoten kann erst gelöscht werden wenn " +
+                                "er keine Kanten mehr hat, aktuell hat er " + node.Kanten.Count + " Kanten");
+                        }
+                    }
+                    else if (node.Kanten.Count == 0)
+                    {
+                        Nodes.Remove(node);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Der Knoten existiert nicht");
+            }
+        }
+        //------------------------------------------------------------------------------------------------------------
+        private void RemoveEdge(Edge edge)
+        {
+            edge.A.Kanten.Remove(edge);
+            edge.B.Kanten.Remove(edge);
+        }
+        //------------------------------------------------------------------------------------------------------------
+        public void DisplayKnoten()
+        {
+            var Counter = 0;
+            foreach (var node in Nodes)
+            {
+                if (node.Kanten.Count != 0)
+                {
+                    Console.WriteLine($"Knotenpunkt " + Counter + " " + node.Name);
+                    Counter++;
+                }
+            }
+        }
+        //------------------------------------------------------------------------------------------------------------
+
+        public List<List<Node>> StackVersuch(Node start, Node finish)
+        {
+            Stack<List<Node>> stack = new Stack<List<Node>>();
+
+
+            var current = FindPossibleWays(start, );
+
+            stack.Push(current);
+
+            while (stack.Count() > 0)
+            {
+
+            }
+
+            return null;
+        }
+
+        public List<List<Node>> FindPossibleWays(Node current, List<List<Node>> StackContainer)
+        {
+            foreach (var item in StackContainer)
+            {
+                var nachbarn = FindNeighbour(current.Name);
+
+                foreach (var value in nachbarn.ToArray())
+                {
+                    if (current == item.ToArray()[item.Count()])
+                    {
+                        item.Add(nachbarn.ToArray()[0]);
+                        nachbarn.Remove(nachbarn.ToArray()[0]);
+                        break;
+                    }
+                    break;
+                }
+            }
+            return StackContainer;
+        }
+
+        public List<List<Node>> StackToList(Stack<Liste<Node>> stack)
+        {
+            var listeAusStack = new List<List<Node>>();
+
+            foreach (var item in stack.ToArray())
+            {
+                foreach (var value in item)
+                {
+                    listeAusStack.Add(value);
+                }
+
+            }
+
+            return listeAusStack;
+        }
+
+
+
         //public List<List<Node>> GangAlgo(Node start, Node target)
         //{
         //    List<Node> temp = new List<Node>();
@@ -367,223 +447,6 @@ namespace Graphen
         //    return false;
         //}
 
-        //public List<List<Node>> SearchWaysRecursive(Node start, Node ziel, List<Node> history)
-        //{
-        //    Console.WriteLine(new string('-', history.Count) + "Start" + start.Name);
-        //    var solutions = new List<List<Node>>();
-
-        //    var neighbourNodes =
-        //        start.Kanten.Select(e => e.A)
-        //        .Union(start.Kanten.Select(e => e.B))
-        //        .Where(e => !history.Contains(e))
-        //        .ToArray();
-
-        //    foreach (var neighbour in neighbourNodes)
-        //    {
-        //        if (neighbour == ziel)
-        //        {
-        //            var solution = new List<Node>(history) { neighbour };
-        //            solutions.Add(solution);
-        //        }
-        //        else
-        //        {
-        //            var nextHistory = new List<Node>(history) { neighbour };
-        //            solutions.AddRange(SearchWaysRecursive(neighbour, ziel, history));
-        //        }
-        //    }
-        //    Console.WriteLine(new string('-', history.Count) + "Beende " + start.Name);
-        //    return solutions;
-        //}
-
-        //------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Um Rekursion zu verstehen, muss man Rekursion verstehen ;        /// </summary>
-        /// <param name="start">Der Startknoten</param>
-        /// <param name="ziel">Der Zielknoten</param>
-        /// <param name="history">Der bisher gegangene Weg</param>
-        /// <returns>Lösungswege</returns>
-        public List<List<Node>> SearchWaysRecursive(Node start, Node ziel, List<Node> history)
-        {
-            Console.WriteLine(new string('-', history.Count) + "Starte " + start.Name);
-            var solutions = new List<List<Node>>();
-            //Alle Nachbarn holen, die noch nicht in der History sind
-            var neighborNodes =
-                start.Kanten.Select(e => e.A)
-                .Union(start.Kanten.Select(e => e.B))
-                .Where(e => !history.Contains(e))
-                .ToArray();
-            foreach (var neighbor in neighborNodes)
-            {
-                if (neighbor == ziel)
-                {
-                    //ist der Nachbar das Ziel, speichern wir das
-                    var solution = new List<Node>(history) { neighbor };
-                    solutions.Add(solution);
-                }
-                else
-                {
-                    //ist es nicht das Ziel, dann erweitern wir die History und gehen ein Level tiefer
-                    //die Lösungen aus dieser Ebene adden wir zu den solutions
-                    var nextHistory = new List<Node>(history) { neighbor };
-                    solutions.AddRange(SearchWaysRecursive(neighbor, ziel, nextHistory));
-                }
-            }
-            Console.WriteLine(new string('-', history.Count) + "Beende " + start.Name);
-            return solutions;
-        }
-
-        //------------------------------------------------------------------------------------------------------------
-        public (List<List<Node>>, List<Node>, List<int>) FastestWay(Node start, Node ziel)
-        {
-            var history = new List<Node>();
-            var gefilterteSolutions = new List<List<Node>>();
-
-            var ungefilterteSolutions = SearchWaysRecursive(start, ziel, history);
-
-            foreach (var item in ungefilterteSolutions)
-            {
-                if (item.ToArray()[0] == start)
-                    gefilterteSolutions.Add(item);
-            }
-
-            var shortestWay = new List<Node>();
-            var valueWays = new List<int>();
-            var Zähler = 0;
-            int sum = 0;
-
-            foreach (var item in gefilterteSolutions)
-            {
-                var index = 0;
-
-                foreach (var node in item)
-                {
-                    var listOfEdges = node.Kanten;
-
-                    for (int i = Zähler; i < item.Count() - 1;)
-                    {
-                        for (int h = 0; h < listOfEdges.Count(); h++)
-                        {
-                            var knot = listOfEdges.ToArray()[h];
-                            if (knot.A == item.ToArray()[i + 1] || knot.B == item.ToArray()[i + 1])
-                            {
-                                Zähler++;
-                                sum = sum + knot.Value;
-                                break;
-                            }
-                        }
-                        break;
-
-                    }
-                }
-
-                for (int i = 0; i < valueWays.Count(); i++)
-                {
-                    if (sum < valueWays.ToArray()[i])
-                    {
-                        if (i == valueWays.Count() - 1)
-                        {
-                            shortestWay.Clear();
-                            foreach (var dings in item)
-                            {
-                                shortestWay.Add(dings);
-                            }
-                        }
-                    }
-                    else
-                        break;
-                }
-                valueWays.Add(sum);
-                sum = 0;
-                Zähler = 0;
-            }
-
-            return (gefilterteSolutions, shortestWay, valueWays);
-        }
-        //------------------------------------------------------------------------------------------------------------
-        public List<Node> FindNeighbour(string startnode)
-        {
-            List<Node> neighbourlist = new List<Node>();
-
-            Node startknoten = null;
-            foreach (var node in Nodes)
-            {
-                if (node.Name == startnode)
-                {
-                    startknoten = node;
-                }
-            }
-
-            if (startknoten != null)
-            {
-                foreach (var kante in startknoten.Kanten)
-                {
-                    if (kante.A == startknoten)
-                        neighbourlist.Add(kante.B);
-                    else
-                        neighbourlist.Add(kante.A);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Der Knoten existiert nicht");
-            }
-            return neighbourlist;
-        }
-        //-------------------------------------------------------------------------------------------------------
-        public void DeleteKnoten(string DeleteNode, bool RemoveEdges = false)
-        {
-            if (Exists(DeleteNode))
-            {
-                foreach (var node in Nodes.ToArray())
-                {
-                    if (node.Kanten.Count != 0 && node.Name == DeleteNode)
-                    {
-                        if (RemoveEdges == true)
-                        {
-                            foreach (var edge in node.Kanten.ToArray())
-                            {
-                                RemoveEdge(edge);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Der Knoten kann erst gelöscht werden wenn " +
-                                "er keine Kanten mehr hat, aktuell hat er " + node.Kanten.Count + " Kanten");
-                        }
-                    }
-                    else if (node.Kanten.Count == 0)
-                    {
-                        Nodes.Remove(node);
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine("Der Knoten existiert nicht");
-            }
-        }
-
-        //------------------------------------------------------------------------------------------------------------
-
-        private void RemoveEdge(Edge edge)
-        {
-            edge.A.Kanten.Remove(edge);
-            edge.B.Kanten.Remove(edge);
-        }
-
-        public void DisplayKnoten()
-        {
-            var Counter = 0;
-            foreach (var node in Nodes)
-            {
-                if (node.Kanten.Count != 0)
-                {
-                    Console.WriteLine($"Knotenpunkt " + Counter + " " + node.Name
-                        );
-                    Counter++;
-                }
-            }
-        }
 
     }
 }

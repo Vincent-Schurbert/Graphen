@@ -102,6 +102,8 @@ namespace Graphen
             var start = KompletterGraph.Nodes.First(n => n.Name == "E");
             var ziel = KompletterGraph.Nodes.First(n => n.Name == "Z");
 
+            KompletterGraph.StackVersuch(start, ziel);
+
             KompletterGraph.FastestWay(start, ziel);
 
             KompletterGraph.DisplayKnoten();
