@@ -10,9 +10,11 @@ namespace Graphen
         public List<Node> Nodes { get; set; }
         public List<Edge> Edges;
 
-        List<List<Node>> Solutions = new List<List<Node>>();
-        Stack<Node> Stack = new Stack<Node>();
-        HashSet<Node> Visited = new HashSet<Node>();
+        public List<List<Node>> allWays = new List<List<Node>>();
+
+        //List<List<Node>> Solutions = new List<List<Node>>();
+        //Stack<Node> Stack = new Stack<Node>();
+        //HashSet<Node> Visited = new HashSet<Node>();
         public Graph()
         {
             Nodes = new List<Node>();
@@ -115,7 +117,7 @@ namespace Graphen
         //            {
 
         //            }
-                    
+
         //        }
         //    }
         //}
@@ -124,14 +126,14 @@ namespace Graphen
         public List<List<Node>> SearchWay2(string startpoint, string endpoint)
         {
             var startNode = Nodes.First(node => node.Name == startpoint);
-            var ways = new List<List<Node>> { new List<Node>{ startNode } };
-            List<Edge> edges = new List<Edge>(); 
+            var ways = new List<List<Node>> { new List<Node> { startNode } };
+            List<Edge> edges = new List<Edge>();
             var newWays = ways;
 
             bool newWayFound = true;
             while (newWayFound)
-            {                
-                newWays = newWays.SelectMany(w => GetNewWays(w)).ToList(); 
+            {
+                newWays = newWays.SelectMany(w => GetNewWays(w)).ToList();
                 newWayFound = newWays.Any();
                 ways.AddRange(newWays);
             }
@@ -151,7 +153,7 @@ namespace Graphen
                 .Distinct()
                 .Where(k => !way.Contains(k))
                 .ToArray();
-            
+
             foreach (var knoten in andereKnoten)
             {
                 var newWay = way.ToList();
@@ -265,106 +267,238 @@ namespace Graphen
 
         //    return (Ergebnis, dauer);
         //}
-        public List<List<Node>> GangAlgo(Node start, Node target)
+        //public List<List<Node>> GangAlgo(Node start, Node target)
+        //{
+        //    List<Node> temp = new List<Node>();
+        //    Stack.Push(start);
+        //    Node current = start;
+        //    var startNachbarn = nachBaren(start);
+        //    while (Stack.Count > 0)
+        //    {
+        //        var tempNachbar = nachBaren(current);
+
+        //        while (tempNachbar.Count != 0)
+        //        {
+        //            current = tempNachbar.Where(n => !temp.Contains(n)).ToArray()[0];
+
+        //            Stack.Push(current);
+        //            if (current == target)
+        //            { 
+        //                if (!listExistiert(Stack.ToList()))
+        //                    Solutions.Add(Stack.ToList());
+        //                Stack.Pop();
+        //                current = Stack.Peek();
+        //                while (Stack.Contains(startNachbarn.ToArray()[0]))
+        //                {
+        //                    if (tempNachbar.Count != tempCount(temp, current)) // statt nur wenn ein nachfolgender nachbar besteht müssen wir den buchstaben so oft ins temp reinschreiben wie er nachbarn hat und darauf überprüfen 
+        //                    {
+        //                        temp.Add(current);
+        //                        if (tempNachbar.Count != tempCount(temp, current) || temp.Contains(startNachbarn.ToArray()[0]))
+        //                        {
+        //                            break;
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        Stack.Pop();
+        //                        current = Stack.Peek();
+        //                        tempNachbar = nachBaren(current);
+        //                    }
+        //                }
+        //                break;
+        //            }
+        //            tempNachbar = nachBaren(current);
+        //        }
+        //        if (tempNachbar.Count == 0 || temp.Contains(startNachbarn.ToArray()[0]) && tempNachbar.Count == tempCount(temp, current))
+        //        {
+        //            Stack.Pop();
+        //            Visited.Add(current);
+
+        //            if (startNachbarn.Contains(current))
+        //            {
+        //                startNachbarn.Remove(current);
+        //                temp.Clear();
+        //            }
+
+        //            current = Stack.Peek();
+        //        }
+        //    }
+        //    return Solutions;
+        //}
+        //public List<Node> nachBaren(Node aktuell)
+        //{
+        //    var tempnachbarn = FindNeighbour(aktuell.Name)
+        //                      .Where(e => !Stack.Contains(e))
+        //                      .Where(e => !Visited.Contains(e))
+        //                      .ToList();
+        //    return tempnachbarn;
+        //}
+        //public int tempCount(List<Node> gesamteListe, Node element)
+        //{
+        //    int Zähler = 0;
+        //    foreach (var item in gesamteListe)
+        //    {
+        //        if (item == element)
+        //            Zähler++;
+        //    }
+        //    return Zähler;
+        //}
+        //public bool listExistiert(List<Node> zuPrüfen)
+        //{
+        //    var _zuPrüfen = zuPrüfen.ToArray();
+        //    if (Solutions.Count == 0)
+        //    {
+        //        return false;
+        //    }
+        //    foreach (var lösung in Solutions)
+        //    {
+        //        var _lösung = lösung.ToArray();
+        //        for (int i = 0; i < zuPrüfen.Count; i++)
+        //        {
+        //            if (_zuPrüfen[i] == _lösung[i])
+        //            {
+        //                if (i == zuPrüfen.Count - 1)
+        //                    return true;
+        //            }
+        //            else
+        //                break;
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        //public List<List<Node>> SearchWaysRecursive(Node start, Node ziel, List<Node> history)
+        //{
+        //    Console.WriteLine(new string('-', history.Count) + "Start" + start.Name);
+        //    var solutions = new List<List<Node>>();
+
+        //    var neighbourNodes =
+        //        start.Kanten.Select(e => e.A)
+        //        .Union(start.Kanten.Select(e => e.B))
+        //        .Where(e => !history.Contains(e))
+        //        .ToArray();
+
+        //    foreach (var neighbour in neighbourNodes)
+        //    {
+        //        if (neighbour == ziel)
+        //        {
+        //            var solution = new List<Node>(history) { neighbour };
+        //            solutions.Add(solution);
+        //        }
+        //        else
+        //        {
+        //            var nextHistory = new List<Node>(history) { neighbour };
+        //            solutions.AddRange(SearchWaysRecursive(neighbour, ziel, history));
+        //        }
+        //    }
+        //    Console.WriteLine(new string('-', history.Count) + "Beende " + start.Name);
+        //    return solutions;
+        //}
+
+        //------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Um Rekursion zu verstehen, muss man Rekursion verstehen ;        /// </summary>
+        /// <param name="start">Der Startknoten</param>
+        /// <param name="ziel">Der Zielknoten</param>
+        /// <param name="history">Der bisher gegangene Weg</param>
+        /// <returns>Lösungswege</returns>
+        public List<List<Node>> SearchWaysRecursive(Node start, Node ziel, List<Node> history)
         {
-            List<Node> temp = new List<Node>();
-            Stack.Push(start);
-            Node current = start;
-            var startNachbarn = nachBaren(start);
-            while (Stack.Count > 0)
+            Console.WriteLine(new string('-', history.Count) + "Starte " + start.Name);
+            var solutions = new List<List<Node>>();
+            //Alle Nachbarn holen, die noch nicht in der History sind
+            var neighborNodes =
+                start.Kanten.Select(e => e.A)
+                .Union(start.Kanten.Select(e => e.B))
+                .Where(e => !history.Contains(e))
+                .ToArray();
+            foreach (var neighbor in neighborNodes)
             {
-                var tempNachbar = nachBaren(current);
-
-                while (tempNachbar.Count != 0)
+                if (neighbor == ziel)
                 {
-                    current = tempNachbar.Where(n => !temp.Contains(n)).ToArray()[0];
+                    //ist der Nachbar das Ziel, speichern wir das
+                    var solution = new List<Node>(history) { neighbor };
+                    solutions.Add(solution);
+                }
+                else
+                {
+                    //ist es nicht das Ziel, dann erweitern wir die History und gehen ein Level tiefer
+                    //die Lösungen aus dieser Ebene adden wir zu den solutions
+                    var nextHistory = new List<Node>(history) { neighbor };
+                    solutions.AddRange(SearchWaysRecursive(neighbor, ziel, nextHistory));
+                }
+            }
+            Console.WriteLine(new string('-', history.Count) + "Beende " + start.Name);
+            return solutions;
+        }
 
-                    Stack.Push(current);
-                    if (current == target)
+        //------------------------------------------------------------------------------------------------------------
+        public (List<List<Node>>, List<Node>, List<int>) FastestWay(Node start, Node ziel)
+        {
+            var history = new List<Node>();
+            var gefilterteSolutions = new List<List<Node>>();
+
+            var ungefilterteSolutions = SearchWaysRecursive(start, ziel, history);
+
+            foreach (var item in ungefilterteSolutions)
+            {
+                if (item.ToArray()[0] == start)
+                    gefilterteSolutions.Add(item);
+            }
+
+            var shortestWay = new List<Node>();
+            var valueWays = new List<int>();
+            var Zähler = 0;
+            int sum = 0;
+
+            foreach (var item in gefilterteSolutions)
+            {
+                var index = 0;
+
+                foreach (var node in item)
+                {
+                    var listOfEdges = node.Kanten;
+
+                    for (int i = Zähler; i < item.Count() - 1;)
                     {
-                        if (!listExistiert(Stack.ToList()))
-                            Solutions.Add(Stack.ToList());
-                        Stack.Pop();
-                        current = Stack.Peek();
-                        while (Stack.Contains(startNachbarn.ToArray()[0]))
+                        for (int h = 0; h < listOfEdges.Count(); h++)
                         {
-                            if (tempNachbar.Count != tempCount(temp, current)) // statt nur wenn ein nachfolgender nachbar besteht müssen wir den buchstaben so oft ins temp reinschreiben wie er nachbarn hat und darauf überprüfen 
+                            var knot = listOfEdges.ToArray()[h];
+                            if (knot.A == item.ToArray()[i + 1] || knot.B == item.ToArray()[i + 1])
                             {
-                                temp.Add(current);
-                                if (tempNachbar.Count != tempCount(temp, current) || temp.Contains(startNachbarn.ToArray()[0]))
-                                {
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                Stack.Pop();
-                                current = Stack.Peek();
-                                tempNachbar = nachBaren(current);
+                                Zähler++;
+                                sum = sum + knot.Value;
+                                break;
                             }
                         }
                         break;
-                    }
-                    tempNachbar = nachBaren(current);
-                }
-                if (tempNachbar.Count == 0 || temp.Contains(startNachbarn.ToArray()[0]) && tempNachbar.Count == tempCount(temp, current))
-                {
-                    Stack.Pop();
-                    Visited.Add(current);
 
-                    if (startNachbarn.Contains(current))
-                    {
-                        startNachbarn.Remove(current);
-                        temp.Clear();
                     }
-
-                    current = Stack.Peek();
                 }
-            }
-            return Solutions;
-        }
-        public List<Node> nachBaren(Node aktuell)
-        {
-            var tempnachbarn = FindNeighbour(aktuell.Name)
-                              .Where(e => !Stack.Contains(e))
-                              .Where(e => !Visited.Contains(e))
-                              .ToList();
-            return tempnachbarn;
-        }
-        public int tempCount(List<Node> gesamteListe, Node element)
-        {
-            int Zähler = 0;
-            foreach (var item in gesamteListe)
-            {
-                if (item == element)
-                    Zähler++;
-            }
-            return Zähler;
-        }
-        public bool listExistiert(List<Node> zuPrüfen)
-        {
-            var _zuPrüfen = zuPrüfen.ToArray();
-            if (Solutions.Count == 0)
-            {
-                return false;
-            }
-            foreach (var lösung in Solutions)
-            {
-                var _lösung = lösung.ToArray();
-                for (int i = 0; i < zuPrüfen.Count; i++)
+
+                for (int i = 0; i < valueWays.Count(); i++)
                 {
-                    if (_zuPrüfen[i] == _lösung[i])
+                    if (sum < valueWays.ToArray()[i])
                     {
-                        if (i == zuPrüfen.Count - 1)
-                            return true;
+                        if (i == valueWays.Count() - 1)
+                        {
+                            shortestWay.Clear();
+                            foreach (var dings in item)
+                            {
+                                shortestWay.Add(dings);
+                            }
+                        }
                     }
                     else
                         break;
                 }
+                valueWays.Add(sum);
+                sum = 0;
+                Zähler = 0;
             }
-            return false;
-        }
 
+            return (gefilterteSolutions, shortestWay, valueWays);
+        }
         //------------------------------------------------------------------------------------------------------------
         public List<Node> FindNeighbour(string startnode)
         {

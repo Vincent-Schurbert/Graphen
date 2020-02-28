@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Graphen
@@ -8,6 +9,8 @@ namespace Graphen
         static void Main(string[] args)
         {
             var KompletterGraph = new Graph();
+
+            List<Node> historyListe = new List<Node>() { };
 
             //KompletterGraph.AddKnoten("Friedrichstraße");
             //KompletterGraph.AddKnoten("Hackescher Markt");
@@ -99,7 +102,9 @@ namespace Graphen
             var start = KompletterGraph.Nodes.First(n => n.Name == "E");
             var ziel = KompletterGraph.Nodes.First(n => n.Name == "Z");
 
-            KompletterGraph.GangAlgo(start, ziel);
+            KompletterGraph.FastestWay(start, ziel);
+
+            KompletterGraph.DisplayKnoten();
 
         }
     }
